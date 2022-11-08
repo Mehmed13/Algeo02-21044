@@ -15,3 +15,9 @@ def normalize_image(array: np.ndarray):
     Kurangkan matriks rata-rata ke semua matriks gambar
     """
     return array - mean_image(array)
+
+
+def calculate_covariance(images: np.ndarray):
+    """Hitung kovarian matriks dengan mengalikan array matriks dengan transposenya
+    """
+    return images @ images.T
