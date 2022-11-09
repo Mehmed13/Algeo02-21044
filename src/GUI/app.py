@@ -11,6 +11,7 @@ def update_dataset(folder_choosen, dir_path):
         dataset_keterangan["text"] = "No Folder Choosen"
     else:
         dataset_keterangan["text"] = dir_path
+    
     dataset_keterangan.pack()
 
 
@@ -89,7 +90,7 @@ file_path = ""
 
 # dataset
 dataset = tk.Frame(data)
-dataset.pack()
+dataset.pack(anchor=tk.NW)
 dataset_text = tk.Label(
     dataset, text="Insert Your Dataset", font=("Helvetica", 15))
 dataset_text.pack(anchor=tk.NW, ipadx=70, ipady=50)
@@ -103,7 +104,7 @@ update_dataset(folder_choosen, dir_path)
 
 # file
 file = tk.Frame(data)
-file.pack()
+file.pack(anchor=tk.W)
 file_text = tk.Label(file, text="Insert Your file", font=("Helvetica", 15))
 file_text.pack(anchor=tk.NW, ipadx=70, ipady=50)
 
