@@ -3,13 +3,17 @@ from typing import List
 import os
 
 
-def get_files(folder: str, image_cap: int):
+def get_files(folder: str, image_cap: int, absolute=False):
     """Melakukan walk pada setiap subfolder dan mencari semua daftar gambar dengan ekstension jpg, png, atau jpeg
 
     Mengembalikan absolute path file
     """
     result: List[str] = []
-    test_path = Path(os.getcwd()).joinpath(folder).resolve()
+
+    if absolute:
+        test_path = Path(folder)
+    else:
+        test_path = Path(os.getcwd()).joinpath(folder).resolve()
 
     counter = 0
 
