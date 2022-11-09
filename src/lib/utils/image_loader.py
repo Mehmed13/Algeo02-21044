@@ -13,9 +13,9 @@ def load_image(path: str) -> np.ndarray:
     return np.asarray(resized, np.uint8).flatten()
 
 
-def batch_load(folder: str, image_cap=2000):
+def batch_load(folder: str, image_cap=2000, absolute=False):
     """Load banyak gambar sekaligus dari holder dataset
     """
-    image_path = get_files(folder, image_cap)
+    image_path = get_files(folder, image_cap, absolute)
 
     return np.asarray([load_image(path) for path in image_path], np.uint8), image_path
