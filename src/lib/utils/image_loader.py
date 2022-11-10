@@ -14,7 +14,7 @@ def load_image(path: str) -> np.ndarray:
 
 
 def batch_load(folder: str, image_cap=2000, absolute=False):
-    """Load banyak gambar sekaligus dari holder dataset
+    """Load banyak gambar sekaligus dari folder dataset
     """
     image_path = get_files(folder, image_cap, absolute)
 

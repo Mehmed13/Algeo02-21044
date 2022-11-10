@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk  # new widgets and feature, themed widgets
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
+from lib import training, matrix, matching
+from lib.utils import load_image
 # from ctypes import windl
 
 # windl.shcore.SetProcessDpiAwareness(1)
@@ -26,7 +28,9 @@ def update_dataset(folder_choosen):
 
 
 def update_file(file_choosen):
-    if (not (file_choosen)):
+    if (not (file_choosen) or file_path == ""):
+        if (file_path == ""):
+            file_choosen = False
         file_keterangan["text"] = "No File Choosen"
     else:
         file_keterangan["text"] = "File Choosen"
@@ -65,7 +69,7 @@ def update_test_image(file_choosen):
         if (file_path == ""):
             file_choosen = False
         image = Image.open('src/GUI/assets/blank_image.png')
-    img = image.resize((400, 350))
+    img = image.resize((350, 350))
     test_img = ImageTk.PhotoImage(img)
     test_image["image"] = test_img
     test_image.pack()
@@ -80,8 +84,39 @@ def update_exec_time(execute):
 
 
 def recognize():
-    global closest_image_path
-    pass
+    global closest_image_path, eigenfaces, eigenfaces_used, mean, image_count
+    if (file_path != ""):  # Memastikan agar sudah terdapat test_image
+        if (prev_dir != dir_path):  # lakukan training jika berganti dataset
+            covariance, image_count, normalized_images, mean, images_path = training.training(
+                dir_path)  # Mencari matriks kovarian
+            eigenval, eigenvector = matrix.qr_algorithm(covariance)
+            eigenpair = [(eigenval[i], eigenvector[:, i])
+                         for i in range(image_count)]
+            eigenpair.sort(reverse=True)
+            # mx1 256^2x1
+            eigenfaces = {"image": [], "weight": []}
+
+            for i in range(image_count):
+                efec = eigenpair[i][1]
+                eigenface = efec@normalized_images
+                # eigenface = eigenvector[:, i].T@normalized_images
+                normal = matrix.frobenious_form(eigenface)
+                eigenfaces["image"].append(eigenface/normal)
+
+            eigenfaces_used = int(image_count/10) if image_count >= 100 else 5
+
+            for i in range(image_count):
+                weight = []
+                for j in range(eigenfaces_used):
+                    combination = eigenfaces["image"][j].T @ normalized_images[i]
+                    weight.append(combination)
+
+                eigenfaces["weight"].append(weight)
+        closest_image_idx = matching.macth(
+            file_path, eigenfaces, eigenfaces_used, image_count, mean)
+        closest_image_path = images_path[closest_image_idx]
+        match = True
+        update_closest_image(match)
 
 
 def update_closest_image(match):
@@ -90,7 +125,7 @@ def update_closest_image(match):
         image = Image.open(closest_image_path)
     else:
         image = Image.open('src/GUI/assets/blank_image.png')
-    img = image.resize((400, 350))
+    img = image.resize((350, 350))
     closest_img = ImageTk.PhotoImage(img)
     closest_image["image"] = closest_img
     closest_image.pack()
@@ -173,6 +208,7 @@ result_keterangan = tk.Label(result, font=("Helvetica", 10))
 
 match = False  # inisialisasi
 execute = False
+prev_dir = ""
 update_result(match)
 
 # Test Image
