@@ -31,7 +31,7 @@ def calculate_covariance(images: np.ndarray):
     return images @ images.T
 
 
-def sort_image_by_eigenvalue(eigenvalue: np.ndarray, eigenvector: np.ndarray, normalized_images: np.ndarray, path: np.ndarray):
+def sort_image_by_eigenvalue(eigenvalue: np.ndarray, eigenvector: np.ndarray, normalized_images: np.ndarray, path):
     """Sort eigenvalue berdasarkan terbesar terlebih dahulu,
     lalu sort eigenvector, normalized_images, dan path berdasarkan
     hasil sort tadi
@@ -50,7 +50,7 @@ def sort_image_by_eigenvalue(eigenvalue: np.ndarray, eigenvector: np.ndarray, no
     eigenvalue_sorted = eigenvalue[sorted_index]
     eigenvector_sorted = eigenvector_list[sorted_index]
     normalized_images_sorted = normalized_images[sorted_index]
-    path_sorted = path[sorted_index]
+    path_sorted = np.array(path)[sorted_index]
 
     return eigenvalue_sorted, eigenvector_sorted, normalized_images_sorted, path_sorted
 
