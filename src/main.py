@@ -9,6 +9,8 @@ from lib import normalize_image, mean_image, calculate_covariance, qr_algorithm,
 
 # windl.shcore.SetProcessDpiAwareness(1)
 
+global match
+global res
 
 def select_directory():
     global dir_path
@@ -56,9 +58,9 @@ def select_file():
     update_test_image(file_choosen)
 
 
-def update_result(match):
+def update_result(match, res):
     if (match):
-        result_keterangan["text"] = "Matched"
+        result_keterangan["text"] = str(round(res*100, 2)) +"% Match"
     else:
         result_keterangan["text"] = "None"
     result_keterangan.pack(anchor=tk.N)
@@ -108,14 +110,18 @@ def recognize():
                 eigenvalue_sorted, eigenvector_sorted, normalized_images_sorted)
             processed_image = calculate_weight(
                 eigenfaces, normalized_images_sorted, images_path_sorted)
-        closest_image_path = matching.match(
+        closest_image_path, res = matching.match(
             file_path, eigenfaces, processed_image, mean)
-        match = True
+        if(closest_image_path!=None):
+            match = True
+            update_closest_image(match)
+            update_result(match, res)
+        else:
+            match = False
         execute = True
         execution_time = time.time() - start_time
-        update_closest_image(match)
         update_exec_time(execute)
-        update_result(match)
+        update_result(match, res)
     prev_dir = dir_path
 
 
@@ -206,10 +212,11 @@ result_text.pack(anchor=tk.NW, ipadx=70, ipady=30)
 
 result_keterangan = tk.Label(result, font=("Helvetica", 10))
 
+res = 0
 match = False  # inisialisasi
 execute = False
 prev_dir = ""
-update_result(match)
+update_result(match, res)
 
 # Test Image
 test = tk.Frame(app)

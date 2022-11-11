@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from .utils import load_image
 
 
@@ -18,10 +19,15 @@ def match(file_path, eigenfaces, processed_image, mean):
             np.power(np.array(image["weight"] - weight), 2).sum())
         result.append(distance)
 
-    minweight = min(result)
+    maxweight = max(result)
+    divisor = math.sqrt(np.power(np.array(result), 2).sum())
+    # normalize result
+    result = [1-(a/divisor) for a in result]
+    ret = max(result)
 
-    idx = result.index(minweight)
-
-    matched_image = processed_image[idx]
-    closest_image_path = matched_image['path']
-    return closest_image_path
+    if ret>=0.5:
+        idx = result.index(ret)
+        matched_image = processed_image[idx]
+        closest_image_path = matched_image['path']
+        return closest_image_path, ret
+    return None, ret
