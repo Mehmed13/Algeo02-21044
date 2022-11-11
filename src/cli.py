@@ -6,7 +6,7 @@ from lib import normalize_image, mean_image, calculate_covariance, qr_algorithm,
 
 MAX_LOADED_IMAGE = 500
 
-images, path = batch_load("../test/hgfhg", MAX_LOADED_IMAGE)
+images, path = batch_load("../test/Dataset/hgfhg", MAX_LOADED_IMAGE)
 image_count = len(images)
 
 mean = mean_image(images)
@@ -28,7 +28,7 @@ processed_image = calculate_weight(
     eigenfaces, normalized_images_sorted, path_sorted)
 
 # bagian test
-test_image = load_image("../test/elon musk157_1557.jpg")
+test_image = load_image("../test/images/Alex Lawther102_3.jpg")
 
 normalized_test = test_image - mean
 
