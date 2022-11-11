@@ -2,7 +2,9 @@ import tkinter as tk
 from tkinter import ttk  # new widgets and feature, themed widgets
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
-from lib import training, matrix, matching
+import time
+from lib.utils import batch_load, load_image
+from lib import normalize_image, mean_image, calculate_covariance, qr_algorithm, sort_image_by_eigenvalue, build_eigenfaces, calculate_weight, matching
 # from ctypes import windl
 
 # windl.shcore.SetProcessDpiAwareness(1)
@@ -17,8 +19,6 @@ def select_directory():
 
 def update_dataset(folder_choosen):
     if (not (folder_choosen) or dir_path == ""):
-        if (dir_path == ""):
-            folder_choosen = False
         dataset_keterangan["text"] = "No Folder Choosen"
     else:
         dataset_keterangan["text"] = "Folder Choosen"
@@ -39,15 +39,19 @@ def update_file(file_choosen):
 def select_file():
     global file_path
     filetypes = (
-        ('image files', '*.jpg, *.jpeg, *.png'),
+        ('image files', '*.jpg'),
+        ('image files', '*.jpeg'),
+        ('image files', '*.png'),
         ('All files', '*.*')
     )
-
+    prev_file_path = file_path
     file_path = fd.askopenfilename(
         title='Open a file',
         initialdir='/',
         filetypes=filetypes)
     file_choosen = True
+    if (file_path == ""):
+        file_path = prev_file_path
     update_file(file_choosen)
     update_test_image(file_choosen)
 
@@ -76,46 +80,43 @@ def update_test_image(file_choosen):
 
 def update_exec_time(execute):
     if (execute):
-        exec_time["text"] = "Execution time:MM.DD"
+        exec_time["text"] = "Execution time:{execution_time:.2f} s".format(
+            execution_time=execution_time)
     else:
         exec_time["text"] = "Execution time:00.00"
-    exec_time.pack(ipady=15)
+    exec_time.pack(ipady=19)
 
 
 def recognize():
-    global closest_image_path, eigenfaces, eigenfaces_used, mean, image_count
-    if (file_path != ""):  # Memastikan agar sudah terdapat test_image
+    global closest_image_path, eigenfaces, processed_image, mean, execution_time, prev_dir
+    # Memastikan agar sudah terdapat test_image dan folder dataset
+    if (file_path != "" and dir_path != ""):
+        start_time = time.time()
         if (prev_dir != dir_path):  # lakukan training jika berganti dataset
-            covariance, image_count, normalized_images, mean, images_path = training.training(
-                dir_path)  # Mencari matriks kovarian
-            eigenval, eigenvector = matrix.qr_algorithm(covariance)
-            eigenpair = [(eigenval[i], eigenvector[:, i])
-                         for i in range(image_count)]
-            eigenpair.sort(reverse=True)
-            # mx1 256^2x1
-            eigenfaces = {"image": [], "weight": []}
-
-            for i in range(image_count):
-                efec = eigenpair[i][1]
-                eigenface = efec@normalized_images
-                # eigenface = eigenvector[:, i].T@normalized_images
-                normal = matrix.frobenious_form(eigenface)
-                eigenfaces["image"].append(eigenface/normal)
-
-            eigenfaces_used = int(image_count/10) if image_count >= 100 else 5
-
-            for i in range(image_count):
-                weight = []
-                for j in range(eigenfaces_used):
-                    combination = eigenfaces["image"][j].T @ normalized_images[i]
-                    weight.append(combination)
-
-                eigenfaces["weight"].append(weight)
-        closest_image_idx = matching.macth(
-            file_path, eigenfaces, eigenfaces_used, image_count, mean)
-        closest_image_path = images_path[closest_image_idx]
+            # Membentuk matriks gambar dan array of image_path
+            images, images_path = batch_load(dir_path, absolute=True)
+            image_count = len(images)  # Menghitung banyak gambar dataset
+            mean = mean_image(images)  # Menghitung rata-rata matriks gambar
+            normalized_images = normalize_image(images)  # normalisasi
+            covariance = calculate_covariance(
+                normalized_images)  # Menghitung matriks kovarian
+            # Menghitung eigenvalue dan eigen vector dari matriks kovarian
+            eigenvalue, eigenvector = qr_algorithm(covariance)
+            eigenvalue_sorted, eigenvector_sorted, normalized_images_sorted, images_path_sorted = sort_image_by_eigenvalue(
+                eigenvalue, eigenvector, normalized_images, images_path)
+            eigenfaces = build_eigenfaces(
+                eigenvalue_sorted, eigenvector_sorted, normalized_images_sorted)
+            processed_image = calculate_weight(
+                eigenfaces, normalized_images_sorted, images_path_sorted)
+        closest_image_path = matching.match(
+            file_path, eigenfaces, processed_image, mean)
         match = True
+        execute = True
+        execution_time = time.time() - start_time
         update_closest_image(match)
+        update_exec_time(execute)
+        update_result(match)
+    prev_dir = dir_path
 
 
 def update_closest_image(match):
@@ -229,7 +230,7 @@ closest.grid(column=2, row=2, sticky=tk.SE, pady=10)
 
 closest_text = tk.Label(closest, text="Closest Result",
                         font=("Helvetica", 10))
-closest_text.pack(ipadx=70, ipady=30)
+closest_text.pack(ipadx=70, ipady=25)
 
 closest_image = tk.Label(closest)
 update_closest_image(match)

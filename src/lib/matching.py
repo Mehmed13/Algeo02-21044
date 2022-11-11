@@ -2,20 +2,26 @@ import numpy as np
 from .utils import load_image
 
 
-def macth(file_path, eigenfaces, eigenfaces_used, image_count, mean):
-    test_image = load_image("../test/Alex Lawther102_3.jpg")
+def match(file_path, eigenfaces, processed_image, mean):
+    test_image = load_image(file_path)
     normalized_test = test_image - mean
-
     weight = []
-    for i in range(eigenfaces_used):
-        combination = eigenfaces["image"][i].T @ normalized_test
+
+    for eigenface in eigenfaces:
+        combination = eigenface.T @ normalized_test
         weight.append(combination)
 
     result = []
 
-    for i in range(image_count):
-        result.append(
-            np.sqrt(np.power(np.array(eigenfaces["weight"][i]) - np.array(weight), 2)).sum())
+    for image in processed_image:
+        distance = np.sqrt(
+            np.power(np.array(image["weight"] - weight), 2).sum())
+        result.append(distance)
+
     minweight = min(result)
+
     idx = result.index(minweight)
-    return idx
+
+    matched_image = processed_image[idx]
+    closest_image_path = matched_image['path']
+    return closest_image_path
