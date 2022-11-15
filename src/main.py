@@ -4,7 +4,8 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 import time
 from lib.utils import batch_load, load_image
-from lib import normalize_image, mean_image, calculate_covariance, qr_algorithm, sort_image_by_eigenvalue, build_eigenfaces, calculate_weight, matching
+from lib import normalize_image, mean_image, calculate_covariance, qr_algorithm, sort_image_by_eigenvalue, build_eigenfaces, calculate_weight, matching, capture_image_from_camera, process_captured_image
+import cv2
 # from ctypes import windl
 
 # windl.shcore.SetProcessDpiAwareness(1)
@@ -37,6 +38,14 @@ def update_file(file_choosen):
         file_keterangan["text"] = "File Choosen"
     file_keterangan.pack()
 
+def use_camera():
+    try:
+        result = capture_image_from_camera()
+        result = process_captured_image(result)
+        if result is not None:
+            cv2.imwrite('crop.jpg', result)
+    except:
+        pass
 
 def select_file():
     global file_path
@@ -62,7 +71,7 @@ def update_result(match, res):
     if (match):
         result_keterangan["text"] = str(round(res*100, 2)) +"% Match"
     else:
-        result_keterangan["text"] = "None"
+        result_keterangan["text"] = "No image matches"
     result_keterangan.pack(anchor=tk.N)
 
 
@@ -181,7 +190,7 @@ dataset = tk.Frame(data)
 dataset.pack(ipady=10)
 dataset_text = tk.Label(
     dataset, text="Insert Your Dataset", font=("Helvetica", 15))
-dataset_text.pack(ipadx=70, ipady=30)
+dataset_text.pack(ipadx=70, ipady=20)
 
 dataset_button = ttk.Button(
     dataset, text="Choose Folder", command=select_directory)
@@ -194,10 +203,14 @@ update_dataset(folder_choosen)
 file = tk.Frame(data)
 file.pack(ipady=10)
 file_text = tk.Label(file, text="Insert Your file", font=("Helvetica", 15))
-file_text.pack(ipadx=70, ipady=30)
+file_text.pack(ipadx=70, ipady=20)
 
 file_button = ttk.Button(
     file, text="Choose File", command=select_file)
+file_button.pack(ipadx=70, ipady=10)
+
+file_button = ttk.Button(
+    file, text="Use Camera", command=use_camera)
 file_button.pack(ipadx=70, ipady=10)
 
 file_keterangan = tk.Label(file, font=("Helvetica", 10))
