@@ -32,9 +32,7 @@ def calculate_covariance(images: np.ndarray):
 
 
 def sort_image_by_eigenvalue(eigenvalue: np.ndarray, eigenvector: np.ndarray, normalized_images: np.ndarray, path):
-    """Sort eigenvalue berdasarkan terbesar terlebih dahulu,
-    lalu sort eigenvector, normalized_images, dan path berdasarkan
-    hasil sort tadi
+    """
     """
 
     eigenpair = [(eigenvalue[i], eigenvector[:, i])
