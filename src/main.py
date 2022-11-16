@@ -36,14 +36,19 @@ def update_file(file_choosen):
         file_keterangan["text"] = "No File Choosen"
     else:
         file_keterangan["text"] = "File Choosen"
-    file_keterangan.pack()
+    file_keterangan.pack(ipadx=70)
 
 def use_camera():
+    global file_path
     try:
         result = capture_image_from_camera()
-        result = process_captured_image(result)
         if result is not None:
-            cv2.imwrite('crop.jpg', result)
+            cv2.imwrite('../test/Test/camera.jpg', result)
+        file_path = '../test/Test/camera.jpg'
+        file_choosen = True
+        update_file(file_choosen)
+        update_test_image(file_choosen)
+        update_closest_image(False)
     except:
         pass
 
@@ -65,14 +70,17 @@ def select_file():
         file_path = prev_file_path
     update_file(file_choosen)
     update_test_image(file_choosen)
+    update_closest_image(False)
 
 
 def update_result(match, res):
     if (match):
         result_keterangan["text"] = str(round(res*100, 2)) +"% Match"
+        result_path["text"] = closest_image_path
     else:
-        result_keterangan["text"] = "No image matches"
+        result_keterangan["text"] = "None"
     result_keterangan.pack(anchor=tk.N)
+    result_path.pack(anchor=tk.N)
 
 
 def update_test_image(file_choosen):
@@ -83,7 +91,7 @@ def update_test_image(file_choosen):
         if (file_path == ""):
             file_choosen = False
         image = Image.open('GUI/assets/blank_image.png')
-    img = image.resize((350, 350))
+    img = image.resize((300, 300))
     test_img = ImageTk.PhotoImage(img)
     test_image["image"] = test_img
     test_image.pack()
@@ -95,7 +103,7 @@ def update_exec_time(execute):
             execution_time=execution_time)
     else:
         exec_time["text"] = "Execution time:00.00"
-    exec_time.pack(ipady=19)
+    exec_time.pack(ipadx=30, pady=20)
 
 
 def recognize():
@@ -140,7 +148,7 @@ def update_closest_image(match):
         image = Image.open(closest_image_path)
     else:
         image = Image.open('GUI/assets/blank_image.png')
-    img = image.resize((350, 350))
+    img = image.resize((300, 300))
     closest_img = ImageTk.PhotoImage(img)
     closest_image["image"] = closest_img
     closest_image.pack()
@@ -166,19 +174,21 @@ app.title('Keos Recognition')
 app.geometry(f'{window_width}x{window_height}+{center_x}-{center_y}')
 app.resizable(False, False)  # tidak bisa di resize
 app.iconbitmap(r'GUI\assets\keos.ico')  # set icon
-
+app.columnconfigure(0, weight=1)
+app.columnconfigure(1, weight=2)
+app.columnconfigure(2,weight=2)
 
 # Header
 head = tk.Label(app, text="Face Recognition", justify="center",
                 font=("Helvetica", 30, "bold"))
-head.grid(row=0, column=0, columnspan=3, pady=30)
+head.grid(row=0, column=0, columnspan=4, pady=30)
 # Separator
 
 
 # Data Section
 # kontainer
 data = tk.Frame(app)
-data.grid(row=2, column=0, sticky=tk.SW, pady=10)
+data.grid(row=1, column=0,padx=(70,20), ipady=10)
 # penanda belum ada folder yang dipilih
 folder_choosen = False
 dir_path = ""
@@ -190,7 +200,7 @@ dataset = tk.Frame(data)
 dataset.pack(ipady=10)
 dataset_text = tk.Label(
     dataset, text="Insert Your Dataset", font=("Helvetica", 15))
-dataset_text.pack(ipadx=70, ipady=20)
+dataset_text.pack(ipady=20)
 
 dataset_button = ttk.Button(
     dataset, text="Choose Folder", command=select_directory)
@@ -201,9 +211,9 @@ update_dataset(folder_choosen)
 
 # file
 file = tk.Frame(data)
-file.pack(ipady=10)
-file_text = tk.Label(file, text="Insert Your file", font=("Helvetica", 15))
-file_text.pack(ipadx=70, ipady=20)
+file.pack()
+file_text = tk.Label(file, text="Insert Your File", font=("Helvetica", 15))
+file_text.pack(ipady=20)
 
 file_button = ttk.Button(
     file, text="Choose File", command=select_file)
@@ -211,50 +221,55 @@ file_button.pack(ipadx=70, ipady=10)
 
 file_button = ttk.Button(
     file, text="Use Camera", command=use_camera)
-file_button.pack(ipadx=70, ipady=10)
+file_button.pack(ipadx=70, ipady=10, pady=10)
 
 file_keterangan = tk.Label(file, font=("Helvetica", 10))
 update_file(file_choosen)
 
 # result
 result = tk.Frame(data)
-result.pack(ipady=10)
+result.pack()
 
-result_text = tk.Label(result, text="Result", font=("Helvetica", 18))
-result_text.pack(anchor=tk.NW, ipadx=70, ipady=30)
+result_text = tk.Label(result, text="Result", font=("Helvetica", 15))
+result_text.pack(ipady=20)
 
-result_keterangan = tk.Label(result, font=("Helvetica", 10))
-
+result_keterangan = tk.Label(result, font=("Helvetica", 10), fg='green')
+result_path = tk.Label(result, font=("Helvetica", 10), wraplength=200)
 res = 0
 match = False  # inisialisasi
 execute = False
 prev_dir = ""
 update_result(match, res)
 
+
+display_image = tk.Frame(app)
+display_image.grid(row=1, column=1,padx=(20,70))
+display_image.columnconfigure(0, weight=1)
+display_image.columnconfigure(1, weight=1)
 # Test Image
-test = tk.Frame(app)
-test.grid(row=2, column=1, sticky=tk.S, pady=10)
+test = tk.Frame(display_image)
+test.grid(row=1, column=0, padx=20)
 
 test_text = tk.Label(test, text="Test Image", font=("Helvetica", 10))
-test_text.pack(ipadx=70, ipady=25)
+test_text.pack(pady=30)
 
 test_image = tk.Label(test)
 update_test_image(file_choosen)
 
 recognize_button = ttk.Button(test, text="Recognize Image", command=recognize)
-recognize_button.pack(ipadx=70, pady=10, ipady=5)
+recognize_button.pack(ipadx=70, ipady=10, pady=10)
 
 # Closest Result
-closest = tk.Frame(app)
-closest.grid(column=2, row=2, sticky=tk.SE, pady=10)
+closest = tk.Frame(display_image)
+closest.grid(column=1, row=1, padx=20)
 
 closest_text = tk.Label(closest, text="Closest Result",
                         font=("Helvetica", 10))
-closest_text.pack(ipadx=70, ipady=25)
+closest_text.pack(pady=30)
 
 closest_image = tk.Label(closest)
 update_closest_image(match)
-exec_time = tk.Label(closest, font=("Helvetica", 7))
+exec_time = tk.Label(closest, font=("Helvetica", 10))
 update_exec_time(execute)
 
 
