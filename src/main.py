@@ -49,6 +49,8 @@ def use_camera():
         update_file(file_choosen)
         update_test_image(file_choosen)
         update_closest_image(False)
+        update_exec_time(False)
+        update_result(False, 0)
     except:
         pass
 
@@ -71,6 +73,8 @@ def select_file():
     update_file(file_choosen)
     update_test_image(file_choosen)
     update_closest_image(False)
+    update_exec_time(False)
+    update_result(False, 0)
 
 
 def update_result(match, res):
@@ -79,6 +83,7 @@ def update_result(match, res):
         result_path["text"] = closest_image_path
     else:
         result_keterangan["text"] = "None"
+        result_path["text"] = ""
     result_keterangan.pack(anchor=tk.N)
     result_path.pack(anchor=tk.N)
 
