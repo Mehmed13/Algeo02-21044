@@ -134,7 +134,7 @@ def recognize():
                 eigenfaces, normalized_images_sorted, images_path_sorted)
         closest_image_path, res = matching.match(
             file_path, eigenfaces, processed_image, mean)
-        if(closest_image_path!=None):
+        if(closest_image_path!=None and res >=0.75):
             match = True
             update_closest_image(match)
             update_result(match, res)
