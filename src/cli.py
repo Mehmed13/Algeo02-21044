@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from lib.utils import batch_load, load_image
-from lib import normalize_image, mean_image, calculate_covariance, qr_algorithm, sort_image_by_eigenvalue, build_eigenfaces, calculate_weight
+from lib import normalize_image, mean_image, calculate_covariance, qr_algorithm, sort_image_by_eigenvalue, build_eigenfaces, match, calculate_weight
 
 MAX_LOADED_IMAGE = 500
 
-images, path = batch_load("../test/Dataset/hgfhg", MAX_LOADED_IMAGE)
+images, path = batch_load("../test/Dataset", MAX_LOADED_IMAGE)
 image_count = len(images)
 
 mean = mean_image(images)
@@ -28,32 +28,32 @@ processed_image = calculate_weight(
     eigenfaces, normalized_images_sorted, path_sorted)
 
 # bagian test
-test_image = load_image("../test/images/Alex Lawther102_3.jpg")
+path, res = match("../test/Test/download (1).jpg", eigenfaces, processed_image, mean)
+if(path==None):
+    print(res)
+    print("No match found")
+else:
+    print("Found at path "+ path+ " with " + str(round(res*100,2)) +"% matched")
+# test_image = load_image("../test/Test/download (1).jpg")
 
-normalized_test = test_image - mean
+# normalized_test = test_image - mean
 
-weight = []
+# weight = []
 
-for eigenface in eigenfaces:
-    combination = eigenface.T @ normalized_test
-    weight.append(combination)
+# for eigenface in eigenfaces:
+#     combination = eigenface.T @ normalized_test
+#     weight.append(combination)
 
-result = []
+# result = []
 
-for image in processed_image:
-    distance = np.sqrt(np.power(np.array(image["weight"] - weight), 2).sum())
-    result.append(distance)
+# for image in processed_image:
+#     distance = np.sqrt(np.power(np.array(image["weight"] - weight), 2).sum())
+#     result.append(distance)
 
-minweight = min(result)
+# minweight = min(result)
 
-idx = result.index(minweight)
+# idx = result.index(minweight)
 
-matched_image = processed_image[idx]
+# matched_image = processed_image[idx]
 
-print(f"Got path: {matched_image['path']}")
-
-plt.subplot(2, 2, 1)
-plt.imshow(normalized_test.reshape((256, 256)), cmap='gray')
-plt.subplot(2, 2, 2)
-plt.imshow(matched_image["normalized_image"].reshape((256, 256)), cmap='gray')
-plt.show()
+# print(f"Got path: {matched_image['path']}")
