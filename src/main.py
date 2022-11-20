@@ -13,6 +13,7 @@ import cv2
 global match
 global res
 
+
 def select_directory():
     global dir_path
     dir_path = fd.askdirectory()
@@ -38,6 +39,7 @@ def update_file(file_choosen):
         file_keterangan["text"] = "File Choosen"
     file_keterangan.pack(ipadx=70)
 
+
 def use_camera():
     global file_path
     try:
@@ -53,6 +55,7 @@ def use_camera():
         update_result(False, 0)
     except:
         pass
+
 
 def select_file():
     global file_path
@@ -79,7 +82,7 @@ def select_file():
 
 def update_result(match, res):
     if (match):
-        result_keterangan["text"] = str(round(res*100, 2)) +"% Match"
+        result_keterangan["text"] = str(round(res*100, 2)) + "% Match"
         result_path["text"] = closest_image_path
     else:
         result_keterangan["text"] = "None"
@@ -134,7 +137,7 @@ def recognize():
                 eigenfaces, normalized_images_sorted, images_path_sorted)
         closest_image_path, res = matching.match(
             file_path, eigenfaces, processed_image, mean)
-        if(closest_image_path!=None and res >=0.75):
+        if (closest_image_path != None and res >= 0.7):
             match = True
             update_closest_image(match)
             update_result(match, res)
@@ -181,7 +184,7 @@ app.resizable(False, False)  # tidak bisa di resize
 app.iconbitmap(r'GUI\assets\keos.ico')  # set icon
 app.columnconfigure(0, weight=1)
 app.columnconfigure(1, weight=2)
-app.columnconfigure(2,weight=2)
+app.columnconfigure(2, weight=2)
 
 # Header
 head = tk.Label(app, text="Face Recognition", justify="center",
@@ -193,7 +196,7 @@ head.grid(row=0, column=0, columnspan=4, pady=30)
 # Data Section
 # kontainer
 data = tk.Frame(app)
-data.grid(row=1, column=0,padx=(70,20), ipady=10)
+data.grid(row=1, column=0, padx=(70, 20), ipady=10)
 # penanda belum ada folder yang dipilih
 folder_choosen = False
 dir_path = ""
@@ -248,7 +251,7 @@ update_result(match, res)
 
 
 display_image = tk.Frame(app)
-display_image.grid(row=1, column=1,padx=(20,70))
+display_image.grid(row=1, column=1, padx=(20, 70))
 display_image.columnconfigure(0, weight=1)
 display_image.columnconfigure(1, weight=1)
 # Test Image
