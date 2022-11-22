@@ -18,10 +18,12 @@ def match(file_path, eigenfaces, processed_image: List[Image], mean):
 
     result = []
 
+    divider = np.sqrt(np.power(weight, 2).sum())
+
     for image in processed_image:
-        divider = np.sqrt(np.power(np.array(image['weight']), 2).sum())
-        distance = np.sqrt(np.power(np.array((image["weight"] - weight)/divider), 2).sum())
-        # divider = 
+        distance = np.sqrt(
+            np.power(np.array((image["weight"] - weight)/divider), 2).sum())
+        # divider =
 
         result.append(1/(1+distance))
         # result.append(1-distance/divider)
